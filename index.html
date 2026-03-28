@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TigerFurry | Blog</title>
+    <style>
+        :root {
+            --bg: #0d1117; 
+            --text: #c9d1d9;
+            --accent: #58a6ff;
+            --line: #30363d;
+        }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; justify-content: center; }
+        .wrapper { width: 100%; max-width: 600px; padding: 100px 20px; }
+        header { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 50px; }
+        h1 { font-size: 1.6rem; color: #f0f6fc; margin: 0; letter-spacing: 2px; }
+        .tag { font-size: 0.8rem; color: #8b949e; margin-top: 10px; }
+        .list { list-style: none; padding: 0; }
+        .item { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid #21262d; text-decoration: none; color: inherit; transition: 0.2s; }
+        .item:hover { color: var(--accent); background: #161b22; }
+        .date { color: #484f58; font-size: 0.8rem; font-family: monospace; }
+        #admin-gate { margin-top: 100px; text-align: center; color: #21262d; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+<div class="wrapper">
+    <header>
+        <h1>TIGERFURRY</h1>
+        <div class="tag">FURRY ENTHUSIAST / ARTIST</div>
+    </header>
+    <div class="list">
+        <a href="#" class="item">
+            <span>2026 Commission Policy (30000 起)</span>
+            <span class="date">2026-03-28</span>
+        </a>
+        <a href="#" class="item">
+            <span>Access Control & Blacklist 公告</span>
+            <span class="date">2026-03-15</span>
+        </a>
+    </div>
+    <div id="admin-gate">AUTH_GATEWAY_V1</div>
+</div>
+</body>
+</html>
