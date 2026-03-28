@@ -3,43 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TigerFurry | Blog</title>
+    <title>TigerFurry | Base</title>
     <style>
-        :root {
-            --bg: #0d1117; 
-            --text: #c9d1d9;
-            --accent: #58a6ff;
-            --line: #30363d;
-        }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; justify-content: center; }
-        .wrapper { width: 100%; max-width: 600px; padding: 100px 20px; }
-        header { border-bottom: 1px solid var(--line); padding-bottom: 20px; margin-bottom: 50px; }
-        h1 { font-size: 1.6rem; color: #f0f6fc; margin: 0; letter-spacing: 2px; }
-        .tag { font-size: 0.8rem; color: #8b949e; margin-top: 10px; }
-        .list { list-style: none; padding: 0; }
-        .item { display: flex; justify-content: space-between; padding: 20px 0; border-bottom: 1px solid #21262d; text-decoration: none; color: inherit; transition: 0.2s; }
-        .item:hover { color: var(--accent); background: #161b22; }
-        .date { color: #484f58; font-size: 0.8rem; font-family: monospace; }
-        #admin-gate { margin-top: 100px; text-align: center; color: #21262d; font-size: 0.7rem; }
+        :root { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; }
+        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        nav { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 20px; box-sizing: border-box; }
+        .login-btn { border: 1px solid var(--border); color: var(--text); background: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
+        .login-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .container { width: 90%; max-width: 650px; margin-top: 40px; }
+        header { border-left: 4px solid var(--accent); padding-left: 20px; margin-bottom: 60px; }
+        h1 { font-size: 2rem; color: #f0f6fc; margin: 0; }
+        .post-card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
+        #login-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; width: 280px; box-shadow: 0 0 30px #000; z-index: 100; }
+        input { width: 100%; padding: 10px; margin-bottom: 15px; background: #0d1117; border: 1px solid var(--border); border-radius: 5px; color: #fff; box-sizing: border-box; }
+        .auth-btn { width: 100%; padding: 10px; background: var(--accent); border: none; border-radius: 5px; color: #fff; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-<div class="wrapper">
+<nav>
+    <div style="font-weight: bold;">TF_SYSTEM</div>
+    <button class="login-btn" id="auth-btn" onclick="toggleModal(true)">LOGIN</button>
+</nav>
+<div class="container">
     <header>
         <h1>TIGERFURRY</h1>
-        <div class="tag">FURRY ENTHUSIAST / ARTIST</div>
+        <p>只接專業委託，不談人生。</p>
     </header>
-    <div class="list">
-        <a href="#" class="item">
-            <span>2026 Commission Policy (30000 起)</span>
-            <span class="date">2026-03-28</span>
-        </a>
-        <a href="#" class="item">
-            <span>Access Control & Blacklist 公告</span>
-            <span class="date">2026-03-15</span>
-        </a>
+    <div class="post-list">
+        <div class="post-card">
+            <span style="font-weight:bold; display:block; font-size:1.1rem;">2026 Commission Policy (30000 起)</span>
+            <small style="color:#484f58">STATUS: ACTIVE</small>
+        </div>
     </div>
-    <div id="admin-gate">AUTH_GATEWAY_V1</div>
+    <div id="login-modal">
+        <h3 style="margin-top:0">ADMIN AUTH</h3>
+        <input type="email" id="email" placeholder="Admin Email">
+        <input type="password" id="password" placeholder="Access Key">
+        <button class="auth-btn" onclick="handleLogin()">VERIFY</button>
+        <p onclick="toggleModal(false)" style="text-align:center; font-size:0.7rem; cursor:pointer; margin-top:15px; color:#484f58;">EXIT</p>
+    </div>
 </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  
+  // 這是你的 Firebase 配置，已經幫你對齊好了
+  const firebaseConfig = {
+    apiKey: "AIzaSyB0RkWH-59lgYef2un0HZlh6Qztb0ARwPQ",
+    authDomain: "blog-f2a36.firebaseapp.com",
+    projectId: "blog-f2a36",
+    storageBucket: "blog-f2a36.firebasestorage.app",
+    messagingSenderId: "857809971573",
+    appId: "1:857809971573:web:2f56c89ecbe2c8dbdccb3c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  window.toggleModal = (s) => document.getElementById('login-modal').style.display = s ? 'block' : 'none';
+
+  window.handleLogin = async () => {
+      try {
+          await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+          toggleModal(false);
+      } catch (e) { alert("驗證失敗：帳號或金鑰錯誤"); }
+  }
+
+  // 後台註冊 API (F12 Console 使用)
+  window.secretRegister = (e, p) => createUserWithEmailAndPassword(auth, e, p).then(() => alert("Admin 註冊成功"));
+
+  onAuthStateChanged(auth, (u) => {
+      const b = document.getElementById('auth-btn');
+      b.innerText = u ? "LOGOUT" : "LOGIN";
+      b.onclick = u ? () => signOut(auth) : () => toggleModal(true);
+  });
+</script>
 </body>
 </html>
