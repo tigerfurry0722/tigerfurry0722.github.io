@@ -1,82 +1,121 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TigerFurry | Base</title>
+    <title>Tigers Blog - 工作室日誌</title>
     <style>
-        :root { --bg: #0d1117; --card: #161b22; --text: #c9d1d9; --accent: #58a6ff; --border: #30363d; }
-        body { background-color: var(--bg); color: var(--text); font-family: -apple-system, sans-serif; margin: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        nav { width: 100%; max-width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 20px; box-sizing: border-box; }
-        .login-btn { border: 1px solid var(--border); color: var(--text); background: none; padding: 6px 15px; border-radius: 6px; cursor: pointer; transition: 0.3s; }
-        .login-btn:hover { border-color: var(--accent); color: var(--accent); }
-        .container { width: 90%; max-width: 650px; margin-top: 40px; }
-        header { border-left: 4px solid var(--accent); padding-left: 20px; margin-bottom: 60px; }
-        h1 { font-size: 2rem; color: #f0f6fc; margin: 0; }
-        .post-card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 12px; margin-bottom: 20px; }
-        #login-modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 12px; width: 280px; box-shadow: 0 0 30px #000; z-index: 100; }
-        input { width: 100%; padding: 10px; margin-bottom: 15px; background: #0d1117; border: 1px solid var(--border); border-radius: 5px; color: #fff; box-sizing: border-box; }
-        .auth-btn { width: 100%; padding: 10px; background: var(--accent); border: none; border-radius: 5px; color: #fff; font-weight: bold; cursor: pointer; }
+        body { background-color: #121212; color: #e0e0e0; font-family: sans-serif; margin: 0; line-height: 1.6; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: #1a1a1a; border-bottom: 2px solid #333; position: sticky; top: 0; z-index: 100; }
+        #auth-btn { background: #ff9d00; color: #000; border: none; padding: 8px 16px; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        #admin-editor { max-width: 800px; margin: 20px auto; background: #1e1e1e; padding: 20px; border: 1px dashed #ff9d00; border-radius: 8px; display: none; }
+        #admin-editor input, #admin-editor textarea { width: 100%; margin-bottom: 12px; padding: 12px; background: #2c2c2c; color: #fff; border: 1px solid #444; border-radius: 4px; box-sizing: border-box; }
+        #admin-editor button { background: #ff9d00; color: #000; border: none; padding: 10px 25px; cursor: pointer; font-weight: bold; border-radius: 4px; }
+        #post-container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+        article { background: #1a1a1a; padding: 25px; border-radius: 8px; margin-bottom: 30px; border-left: 5px solid #ff9d00; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        article h2 { margin-top: 0; color: #ff9d00; }
+        article p { white-space: pre-wrap; color: #ccc; }
+        article small { color: #666; display: block; margin-top: 15px; }
     </style>
 </head>
 <body>
-<nav>
-    <div style="font-weight: bold;">TF_SYSTEM</div>
-    <button class="login-btn" id="auth-btn" onclick="toggleModal(true)">LOGIN</button>
-</nav>
-<div class="container">
-    <header>
-        <h1>TIGERFURRY</h1>
-        <p>只接專業委託，不談人生。</p>
-    </header>
-    <div class="post-list">
-        <div class="post-card">
-            <span style="font-weight:bold; display:block; font-size:1.1rem;">2026 Commission Policy (30000 起)</span>
-            <small style="color:#484f58">STATUS: ACTIVE</small>
-        </div>
+
+    <nav>
+        <h1 style="font-size: 1.5rem; color: #ff9d00;">Tigers Blog</h1>
+        <button id="auth-btn">LOGIN</button>
+    </nav>
+
+    <div id="admin-editor">
+        <h3 style="margin-top: 0; color: #ff9d00;">✍️ 今天想分享什麼？</h3>
+        <input type="text" id="post-title" placeholder="請輸入標題...">
+        <textarea id="post-content" rows="5" placeholder="開始寫作..."></textarea>
+        <button onclick="publishPost()">發布貼文</button>
     </div>
-    <div id="login-modal">
-        <h3 style="margin-top:0">ADMIN AUTH</h3>
-        <input type="email" id="email" placeholder="Admin Email">
-        <input type="password" id="password" placeholder="Access Key">
-        <button class="auth-btn" onclick="handleLogin()">VERIFY</button>
-        <p onclick="toggleModal(false)" style="text-align:center; font-size:0.7rem; cursor:pointer; margin-top:15px; color:#484f58;">EXIT</p>
+
+    <div id="post-container">
+        <p style="text-align: center; color: #888;">正在連接城堡倉庫...</p>
     </div>
-</div>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  
-  // 這是你的 Firebase 配置，已經幫你對齊好了
-  const firebaseConfig = {
-    apiKey: "AIzaSyB0RkWH-59lgYef2un0HZlh6Qztb0ARwPQ",
-    authDomain: "blog-f2a36.firebaseapp.com",
-    projectId: "blog-f2a36",
-    storageBucket: "blog-f2a36.firebasestorage.app",
-    messagingSenderId: "857809971573",
-    appId: "1:857809971573:web:2f56c89ecbe2c8dbdccb3c"
-  };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  window.toggleModal = (s) => document.getElementById('login-modal').style.display = s ? 'block' : 'none';
+        // Firebase 配置 (請確保與你的專案一致)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0RkWH-59lgYef2un0HZlh6Qztb0ARwPQ",
+            authDomain: "blog-f2a36.firebaseapp.com",
+            projectId: "blog-f2a36",
+            storageBucket: "blog-f2a36.firebasestorage.app",
+            messagingSenderId: "857809971573",
+            appId: "1:857809971573:web:2f56c89ecbe2c8dbdccb3c"
+        };
 
-  window.handleLogin = async () => {
-      try {
-          await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
-          toggleModal(false);
-      } catch (e) { alert("驗證失敗：帳號或金鑰錯誤"); }
-  }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-  // 後台註冊 API (F12 Console 使用)
-  window.secretRegister = (e, p) => createUserWithEmailAndPassword(auth, e, p).then(() => alert("Admin 註冊成功"));
+        // --- 功能 1：抓取文章列表 ---
+        const postContainer = document.getElementById('post-container');
+        onSnapshot(query(collection(db, "posts"), orderBy("createdAt", "desc")), (snap) => {
+            if (snap.empty) {
+                postContainer.innerHTML = "<p style='text-align:center; color:#666;'>目前還沒有文章喔，趕快發第一篇吧！</p>";
+                return;
+            }
+            postContainer.innerHTML = snap.docs.map(doc => `
+                <article>
+                    <h2>${doc.data().title}</h2>
+                    <p>${doc.data().content}</p>
+                    <small>📅 ${doc.data().createdAt?.toDate().toLocaleString() || '同步中...'}</small>
+                </article>
+            `).join('');
+        });
 
-  onAuthStateChanged(auth, (u) => {
-      const b = document.getElementById('auth-btn');
-      b.innerText = u ? "LOGOUT" : "LOGIN";
-      b.onclick = u ? () => signOut(auth) : () => toggleModal(true);
-  });
-</script>
+        // --- 功能 2：發布貼文 (管理員限定) ---
+        window.publishPost = async () => {
+            const title = document.getElementById('post-title').value;
+            const content = document.getElementById('post-content').value;
+            if (!title || !content) return alert("標題和內容都要寫喔！");
+
+            try {
+                await addDoc(collection(db, "posts"), {
+                    title: title,
+                    content: content,
+                    createdAt: serverTimestamp()
+                });
+                document.getElementById('post-title').value = '';
+                document.getElementById('post-content').value = '';
+                alert("發布成功！");
+            } catch (e) {
+                console.error(e);
+                alert("發布失敗，請確認資料庫權限已開啟！");
+            }
+        };
+
+        // --- 功能 3：登入狀態控管 ---
+        const authBtn = document.getElementById('auth-btn');
+        const adminEditor = document.getElementById('admin-editor');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === "xiaojixiangsha0722@gmail.com") {
+                // 如果是你登入
+                authBtn.innerText = "LOGOUT (ADMIN)";
+                adminEditor.style.display = "block"; 
+                authBtn.onclick = () => signOut(auth);
+            } else {
+                // 如果未登入或訪客
+                authBtn.innerText = "LOGIN";
+                adminEditor.style.display = "none";
+                authBtn.onclick = () => {
+                    const email = prompt("管理員信箱：");
+                    const pwd = prompt("密碼：");
+                    if (email && pwd) {
+                        signInWithEmailAndPassword(auth, email, pwd)
+                            .catch(err => alert("登入失敗：" + err.message));
+                    }
+                };
+            }
+        });
+    </script>
 </body>
 </html>
