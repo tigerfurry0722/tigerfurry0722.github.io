@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小虎的畫師日誌 v1.2.0</title>
+    <title>小虎的畫師日誌 v1.3.3</title>
     <style>
         body { font-family: 'Inter', sans-serif; padding: 20px; background-color: #f0f2f5; color: #1c1e21; }
         .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
@@ -22,24 +22,24 @@
 <body>
 
 <div class="container">
-    <div class="version-tag">Build: 20260329-v1.2.0 (Google Auth)</div>
+    <div class="version-tag">Build: 20260329-v1.3.3 (Fixed Config)</div>
     <h1>🐯 小虎的畫師日誌</h1>
     
     <div id="auth-section">
-        <button id="btn-login" onclick="login()">🐾 使用 Google 快速登入</button>
-        <p id="user-info" style="text-align:center; margin-top:10px;"></p>
+        <button id="btn-login" onclick="login()">🐾 點擊此處進行快速登入</button>
+        <p id="user-info" style="text-align:center; margin-top:10px; font-weight:bold;"></p>
         <button id="btn-logout" onclick="logout()">登出</button>
     </div>
 
     <div id="admin-zone">
-        <h3>✍️ 今天又有什麼創作靈感？</h3>
-        <textarea id="post-content" placeholder="在這裡寫下工作室的進度或心情..."></textarea>
+        <h3>✍️ 工作室今天有什麼新發現？</h3>
+        <textarea id="post-content" placeholder="在這裡寫下你的心情吧..."></textarea>
         <button onclick="savePost()" style="background:#42b72a; color:white;">發布日誌</button>
     </div>
 
     <hr style="margin: 25px 0; border: 0; border-top: 1px solid #e4e6eb;">
     <div id="posts-display">
-        <p style="text-align:center; color:#8d949e;">正在加載日誌內容...</p>
+        <p style="text-align:center; color:#8d949e;">正在檢查日誌線路...</p>
     </div>
 </div>
 
@@ -48,10 +48,11 @@
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // 1. Firebase 配置
+    // !!智鱗提醒：這是你剛換好的新鎖!!
     const firebaseConfig = {
-        apiKey: "AIzaSyB8RkWH-59lgYef2un0HZlh6Qztb0ARwPQ",
+        apiKey: "AIzaSyBK3gZ-lkSPgKGcIs6eQRa-mz2ffl8Os1k",
         authDomain: "blog-f2a36.firebaseapp.com",
+        databaseURL: "https://blog-f2a36-default-rtdb.firebaseio.com/", 
         projectId: "blog-f2a36",
         storageBucket: "blog-f2a36.appspot.com",
         messagingSenderId: "857805164808",
@@ -64,17 +65,17 @@
     const db = getDatabase(app);
     const provider = new GoogleAuthProvider();
 
-    // 2. 登入邏輯
+    // 登入邏輯
     window.login = () => {
         signInWithPopup(auth, provider).catch(err => {
-            console.error("登入錯誤：", err.code);
-            alert("❌ 登入失敗：" + err.message);
+            console.error("登入出錯：", err.code);
+            alert("❌ 登入失敗：請檢查 Google Cloud 的金鑰限制是否已按下儲存！\n錯誤碼：" + err.message);
         });
     };
 
     window.logout = () => signOut(auth);
 
-    // 3. 監聽登入狀態
+    // 監聽狀態
     onAuthStateChanged(auth, (user) => {
         const adminZone = document.getElementById('admin-zone');
         const loginBtn = document.getElementById('btn-login');
@@ -84,7 +85,7 @@
         if (user) {
             loginBtn.style.display = 'none';
             logoutBtn.style.display = 'block';
-            userInfo.innerText = "🐯 你好，" + user.displayName;
+            userInfo.innerText = "🐯 你好，" + (user.displayName || "使用者");
             adminZone.style.display = 'block';
         } else {
             loginBtn.style.display = 'block';
@@ -94,7 +95,7 @@
         }
     });
 
-    // 4. 發文功能
+    // 發文
     window.savePost = () => {
         const content = document.getElementById('post-content').value;
         if (!content) return;
@@ -103,26 +104,21 @@
             time: new Date().toLocaleString()
         }).then(() => {
             document.getElementById('post-content').value = "";
-            alert("日誌已更新！🐾");
+            alert("發布成功！🐾");
         });
     };
 
-    // 5. 抓取資料庫內容
+    // 顯示日誌
     onValue(ref(db, 'posts'), (snapshot) => {
         const display = document.getElementById('posts-display');
         display.innerHTML = "";
         if (!snapshot.exists()) {
-            display.innerHTML = "<p style='text-align:center;'>目前還沒有日誌喔。</p>";
+            display.innerHTML = "<p style='text-align:center;'>目前空蕩蕩的，快寫點什麼吧！</p>";
             return;
         }
         snapshot.forEach((child) => {
             const data = child.val();
-            const postHtml = `
-                <div class="post">
-                    <strong>🕒 ${data.time}</strong>
-                    <p style="margin-top:8px; line-height:1.5;">${data.text}</p>
-                </div>`;
-            display.innerHTML = postHtml + display.innerHTML;
+            display.innerHTML = `<div class="post"><strong>📅 ${data.time}</strong><p>${data.text}</p></div>` + display.innerHTML;
         });
     });
 </script>
