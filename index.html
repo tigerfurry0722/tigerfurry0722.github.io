@@ -3,37 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小虎的畫師日誌</title>
+    <title>小虎的畫師日誌 v1.0.1</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        button { cursor: pointer; padding: 10px 20px; border: none; border-radius: 5px; background: #24292f; color: white; transition: 0.3s; }
-        button:hover { background: #444; }
-        #admin-zone { display: none; margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px; }
-        textarea { width: 100%; height: 100px; margin-bottom: 10px; }
-        .post { background: #fff; border-bottom: 1px solid #ddd; padding: 10px 0; }
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; color: #333; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .version-tag { font-size: 12px; color: #888; text-align: right; }
+        button { cursor: pointer; padding: 12px 24px; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        #btn-login { background: #24292f; color: white; }
+        #btn-login:hover { background: #000; }
+        #admin-zone { display: none; margin-top: 25px; padding: 15px; border: 2px dashed #24292f; border-radius: 10px; }
+        textarea { width: 100%; height: 80px; margin: 10px 0; border-radius: 5px; border: 1px solid #ddd; padding: 10px; }
+        .post { background: white; border-bottom: 1px solid #eee; padding: 15px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
+    <div class="version-tag">Build: 20260329-v1.0.1</div>
     <h1>🐯 小虎的畫師日誌</h1>
     
-    <div id="login-section">
-        <button id="btn-login" onclick="login()">🐾 用 GitHub 爽快登入</button>
-        <button id="btn-logout" onclick="logout()" style="display:none; background:#d73a49;">登出</button>
-        <p id="user-info"></p>
+    <div id="auth-section">
+        <button id="btn-login" onclick="login()">🐾 GitHub 爽快登入</button>
+        <button id="btn-logout" onclick="logout()" style="display:none; background:#ff4757; color:white;">登出</button>
+        <p id="user-info" style="margin-top:10px; font-weight:bold;"></p>
     </div>
 
     <div id="admin-zone">
-        <h3>✨ 發布新作品/日誌</h3>
-        <textarea id="post-content" placeholder="今天畫了什麼？"></textarea>
-        <button onclick="savePost()" style="background:#28a745;">發布文章</button>
+        <h3>✨ 只有小虎能看的發文框</h3>
+        <textarea id="post-content" placeholder="今天的工作室又有什麼趣事？(廣東那邊有什麼進展嗎？)"></textarea>
+        <button onclick="savePost()" style="background:#2ed573; color:white; width:100%;">發布日誌</button>
     </div>
 
-    <hr>
+    <hr style="margin: 20px 0;">
     <div id="posts-display">
-        <p>載入內容中...</p>
+        <p>正在努力加載內容...</p>
     </div>
 </div>
 
@@ -42,15 +45,15 @@
     import { getAuth, signInWithPopup, GithubAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
     import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // 1. 你的 Firebase 配置 (請根據 Firebase 控制台替換以下資訊)
+    // 1. Firebase 配置 (請填入你的專案資訊)
     const firebaseConfig = {
-        apiKey: "AIzaSy... (請去專案設定複製)",
+        apiKey: "AIza...", 
         authDomain: "blog-f2a36.firebaseapp.com",
         projectId: "blog-f2a36",
         databaseURL: "https://blog-f2a36-default-rtdb.firebaseio.com",
         storageBucket: "blog-f2a36.appspot.com",
-        messagingSenderId: "你的發送者ID",
-        appId: "你的APPID"
+        messagingSenderId: "...",
+        appId: "..."
     };
 
     const app = initializeApp(firebaseConfig);
@@ -58,16 +61,17 @@
     const db = getDatabase(app);
     const provider = new GithubAuthProvider();
 
-    // 2. 登入功能 (使用你剛剛設定好的 GitHub 鑰匙)
+    // 2. 登入動作：使用我們辛苦拿到的 ID
     window.login = () => {
-        signInWithPopup(auth, provider).catch(err => alert("登入失敗：" + err.message));
+        signInWithPopup(auth, provider).catch(err => {
+            console.error(err);
+            alert("登入失敗，請檢查 GitHub 設定或網路！");
+        });
     };
 
-    window.logout = () => {
-        signOut(auth);
-    };
+    window.logout = () => signOut(auth);
 
-    // 3. 監聽登入狀態：判斷是不是小虎本人
+    // 3. 狀態監聽：實現「打開就是打開了」的絲滑感 [cite: 2026-03-29]
     onAuthStateChanged(auth, (user) => {
         const adminZone = document.getElementById('admin-zone');
         const loginBtn = document.getElementById('btn-login');
@@ -77,10 +81,7 @@
         if (user) {
             loginBtn.style.display = 'none';
             logoutBtn.style.display = 'inline-block';
-            userInfo.innerText = "你好，" + user.displayName;
-
-            // !!關鍵!!：這裡填入你的 GitHub UID (在之前 GitHub 設定頁可以看到)
-            // 如果是你本人，就顯示發文框
+            userInfo.innerText = "歡迎回來，" + user.displayName + "！";
             adminZone.style.display = 'block'; 
         } else {
             loginBtn.style.display = 'inline-block';
@@ -90,7 +91,7 @@
         }
     });
 
-    // 4. 發文功能
+    // 4. 發文功能 (Realtime Database)
     window.savePost = () => {
         const content = document.getElementById('post-content').value;
         if (!content) return;
@@ -99,11 +100,11 @@
             time: new Date().toLocaleString()
         }).then(() => {
             document.getElementById('post-content').value = "";
-            alert("發布成功！");
+            alert("日誌已更新！");
         });
     };
 
-    // 5. 顯示文章
+    // 5. 即時顯示日誌
     onValue(ref(db, 'posts'), (snapshot) => {
         const display = document.getElementById('posts-display');
         display.innerHTML = "";
@@ -116,10 +117,6 @@
 
 </body>
 </html>
-                    }
-                };
-            }
-        });
     </script>
 </body>
 </html>
