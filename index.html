@@ -3,156 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小虎的畫師日誌 v1.5.4</title>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <title>403 Forbidden - 系統安全檢查</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        :root { --gold: #fab005; --dark: #333; --blue: #4dabf7; }
-        body { font-family: sans-serif; background: #f4f4f4; margin: 0; }
-        .nav-bar { background: var(--dark); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .container { max-width: 600px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        
-        .page { display: none; }
-        .active-page { display: block; }
-
-        .auth-card { border: 1px solid #eee; padding: 25px; border-radius: 15px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
-        
-        /* 隱藏式蜜罐陷阱 (Honeypot) - 機器人會手癢去填，填了就報錯 */
-        .hp-field { display: none !important; }
-
-        .btn-guest { background: var(--blue); color: white; width: 100%; padding: 15px; font-size: 16px; }
-        .switch-link { margin-top: 25px; font-size: 13px; color: #bbb; cursor: pointer; }
-        
-        .post-card { border-bottom: 1px solid #eee; padding: 20px 0; }
-        #admin-editor { display: none; background: #fff9db; padding: 20px; border-radius: 12px; border: 2px solid var(--gold); margin-bottom: 20px; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .loading-dot {
+            animation: pulse 1.5s infinite;
+        }
+        .login-modal {
+            backdrop-filter: blur(4px);
+        }
+        /* 旋轉動畫 */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
     </style>
 </head>
-<body>
+<body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen p-4 font-sans text-gray-700 relative">
 
-<div class="nav-bar">
-    <strong style="cursor:pointer;" onclick="showPage('home')">🐯 小虎日誌</strong>
-    <div style="cursor:pointer;" onclick="showPage('login')">👤</div>
-</div>
-
-<div class="container">
-    <div id="page-home" class="page active-page">
-        <div id="admin-editor">
-            <h3 style="margin-top:0;">📝 新增日誌</h3>
-            <textarea id="post-text" style="width:100%; height:100px; padding:10px; border-radius:8px; border:1px solid #ddd;"></textarea>
-            <button onclick="uploadPost()" style="background:#2ed573; color:white; width:100%; padding:10px; margin-top:10px;">發布文章</button>
+    <!-- 1. 系統正在驗證您的瀏覽器 過場畫面 -->
+    <div id="loading-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center space-y-4">
+        <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full spinner"></div>
+        <div class="text-center">
+            <h2 class="text-xl font-bold text-gray-800">系統正在驗證您的瀏覽器</h2>
+            <p class="text-gray-400 text-sm mt-2">請耐心等候一下，這可能需要幾秒鐘...</p>
         </div>
-        <div id="feed">載入日誌中...</div>
+        <p class="text-[10px] text-gray-300 font-mono absolute bottom-10 tracking-widest uppercase">Security Layer v4.0.12</p>
     </div>
 
-    <div id="page-login" class="page">
-        <div id="view-guest" class="auth-card">
-            <h2>🐾 訪客快速驗證</h2>
-            <p style="color:#666; margin-bottom: 20px;">點擊下方按鈕即可自動完成安全檢查。</p>
+    <!-- 2. 攔截主畫面 -->
+    <div id="block-screen" class="hidden max-w-md w-full bg-white shadow-2xl rounded-2xl p-8 border border-gray-100 text-center">
+        <div class="flex justify-center mb-8">
+            <div class="bg-red-50 p-5 rounded-full ring-8 ring-red-50/50">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+            </div>
+        </div>
+
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">發生錯誤</h1>
+        <div class="h-1.5 w-16 bg-red-500 mx-auto rounded-full mb-8"></div>
+
+        <div class="space-y-6 text-left">
+            <p class="text-lg text-gray-600 font-medium text-center leading-relaxed">
+                **很抱歉，因無法驗證您不是機器人，您的請求已被攔截。**
+            </p>
             
-            <button id='guest-submit' class="btn-guest g-recaptcha" 
-                    data-sitekey="你的_reCAPTCHA_SITE_KEY" 
-                    data-callback='onGuestVerified' 
-                    data-badge="bottomright">
-                🚀 開啟互動功能
+            <div class="bg-gray-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+                <p class="text-xs text-gray-500 font-mono leading-loose">
+                    [系統報告]<br>
+                    狀態碼: 403 Forbidden<br>
+                    原因: 非人類行為檢測異常 (Bot_Detection_v4)<br>
+                    **您的 IP 地址已記錄在案。**
+                </p>
+            </div>
+
+            <div class="text-center mt-8">
+                <p class="text-xs text-gray-400 mb-2 font-semibold uppercase tracking-widest">申訴與支援</p>
+                <a href="mailto:hehans1108perdonal@proton.me" class="text-blue-500 hover:text-blue-700 font-mono text-sm underline decoration-2 underline-offset-4">
+                    hehans1108perdonal@proton.me
+                </a>
+            </div>
+        </div>
+
+        <!-- 管理員繞過驗證按鈕 -->
+        <div class="mt-10 pt-6 border-t border-gray-100">
+            <button onclick="toggleLoginModal()" class="text-[10px] text-gray-300 hover:text-blue-400 transition-all uppercase tracking-widest">
+                使用支援郵件提供的帳號密碼來繞過驗證
             </button>
-            
-            <p class="switch-link" onclick="toggleView('admin')">不是遊客嗎？管理員登入</p>
-        </div>
-
-        <div id="view-admin" class="auth-card" style="display:none;">
-            <h2>🔑 管理員後台</h2>
-            <input type="email" id="adm-email" placeholder="Email">
-            <input type="password" id="adm-pw" placeholder="Password">
-            
-            <input type="text" id="honeypot" class="hp-field" placeholder="Don't fill this">
-
-            <button style="background:var(--gold); color:white; width:100%; padding:12px;" onclick="admLogin()">登入權限</button>
-            <p class="switch-link" onclick="toggleView('guest')">返回訪客驗證</p>
-        </div>
-
-        <div id="status-box" style="display:none; text-align:center; padding:20px;">
-            <p id="user-info"></p>
-            <button onclick="doSignOut()" style="background:#ff4757; color:white; padding:10px 20px;">登出</button>
         </div>
     </div>
-</div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+    <!-- 3. 登入成功後的主畫面 -->
+    <div id="admin-screen" class="hidden max-w-4xl w-full bg-white shadow-xl rounded-2xl p-12 border border-gray-100">
+        <div class="flex items-center justify-between mb-8 border-b pb-4">
+            <h2 class="text-2xl font-bold text-gray-800">管理後台</h2>
+            <button onclick="handleLogout()" class="bg-red-50 text-red-500 px-4 py-1 rounded-full text-xs font-bold hover:bg-red-100 transition-colors">登出系統</button>
+        </div>
+        <div class="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-100 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-200 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <p class="text-gray-400 font-medium italic">**暫無貼文**</p>
+        </div>
+    </div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBK3gZ-lkSPgKGcIs6eQRa-mz2ffl8Os1k",
-        authDomain: "blog-f2a36.firebaseapp.com",
-        databaseURL: "https://blog-f2a36-default-rtdb.firebaseio.com/",
-        projectId: "blog-f2a36",
-        storageBucket: "blog-f2a36.appspot.com",
-        messagingSenderId: "857805164808",
-        appId: "1:857805164808:web:7563148f9368d374f368d3"
-    };
+    <!-- 4. 登入 Modal -->
+    <div id="login-modal" class="hidden fixed inset-0 login-modal bg-black/50 flex items-center justify-center p-4 z-[110]">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl scale-up-animation">
+            <h3 class="text-lg font-bold mb-4 text-center text-gray-800 tracking-tight">管理員認證</h3>
+            <form onsubmit="event.preventDefault(); handleLogin();" class="space-y-4">
+                <input type="email" id="email" autocomplete="email" placeholder="電子郵件" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                <input type="password" id="password" autocomplete="current-password" placeholder="密碼" class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                <button type="submit" id="login-submit" class="w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all active:scale-95">
+                    認證並繞過
+                </button>
+                <button type="button" onclick="toggleLoginModal()" class="w-full text-gray-400 text-xs py-2 hover:text-gray-600 transition-colors">關閉視窗</button>
+            </form>
+            <p id="login-error" class="text-red-500 text-xs mt-3 text-center hidden"></p>
+        </div>
+    </div>
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const ADMIN_MAIL = "hehans1108@gmail.com";
+    <script>
+        // --- Firebase 設定區 ---
+        const firebaseConfig = {
+            apiKey: "", 
+            authDomain: "",
+            projectId: "",
+            storageBucket: "",
+            messagingSenderId: "",
+            appId: ""
+        };
 
-    window.showPage = (p) => {
-        document.querySelectorAll('.page').forEach(el => el.classList.remove('active-page'));
-        document.getElementById(`page-${p}`).classList.add('active-page');
-    };
-    window.toggleView = (type) => {
-        document.getElementById('view-guest').style.display = (type === 'guest') ? 'block' : 'none';
-        document.getElementById('view-admin').style.display = (type === 'admin') ? 'block' : 'none';
-    };
+        let auth;
 
-    // 🏆 隱形驗證回調函數
-    window.onGuestVerified = (token) => {
-        signInAnonymously(auth).then(() => {
-            alert("安全檢查通過！🐯");
-            showPage('home');
-        });
-    };
+        // 初始化與載入邏輯
+        window.onload = function() {
+            // 模擬瀏覽器驗證過程
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.style.opacity = '0';
+                setTimeout(() => loadingScreen.style.display = 'none', 500);
+                
+                // 初始化 Firebase
+                initFirebase();
+            }, 2500); // 2.5 秒的驗證動畫
+        };
 
-    window.admLogin = () => {
-        // 🏆 蜜罐檢查：如果這格有值，代表是機器人填的
-        if(document.getElementById('honeypot').value) return; 
+        function initFirebase() {
+            try {
+                if (firebaseConfig.apiKey && firebaseConfig.apiKey !== "") {
+                    firebase.initializeApp(firebaseConfig);
+                    auth = firebase.auth();
+                    
+                    auth.onAuthStateChanged((user) => {
+                        const blockScreen = document.getElementById('block-screen');
+                        const adminScreen = document.getElementById('admin-screen');
 
-        const e = document.getElementById('adm-email').value;
-        const p = document.getElementById('adm-pw').value;
-        signInWithEmailAndPassword(auth, e, p).then(() => showPage('home')).catch(err => alert("失敗：" + err.message));
-    };
-
-    window.doSignOut = () => signOut(auth).then(() => location.reload());
-
-    window.uploadPost = () => {
-        const val = document.getElementById('post-text').value;
-        if(val) push(ref(db, 'posts'), { text: val, time: new Date().toLocaleString() }).then(() => document.getElementById('post-text').value = "");
-    };
-
-    onAuthStateChanged(auth, (user) => {
-        const isAdmin = user && user.email === ADMIN_MAIL;
-        document.getElementById('admin-editor').style.display = isAdmin ? 'block' : 'none';
-        if(user) {
-            document.getElementById('view-guest').style.display = 'none';
-            document.getElementById('view-admin').style.display = 'none';
-            document.getElementById('status-box').style.display = 'block';
-            document.getElementById('user-info').innerText = `目前身分：${isAdmin ? "站長小虎" : "驗證訪客"}`;
+                        if (user) {
+                            blockScreen.style.display = 'none';
+                            adminScreen.classList.remove('hidden');
+                        } else {
+                            blockScreen.style.display = 'block';
+                            adminScreen.classList.add('hidden');
+                        }
+                    });
+                } else {
+                    // 若無設定 API Key 則默認顯示攔截畫面
+                    document.getElementById('block-screen').style.display = 'block';
+                }
+            } catch (e) {
+                console.error("Firebase 初始化失敗:", e);
+                document.getElementById('block-screen').style.display = 'block';
+            }
         }
-    });
 
-    onValue(ref(db, 'posts'), (snap) => {
-        const feed = document.getElementById('feed');
-        feed.innerHTML = "";
-        const data = snap.val();
-        if(data) {
-            Object.keys(data).reverse().forEach(id => {
-                const p = data[id];
-                feed.innerHTML += `<div class="post-card"><small>📅 ${p.time}</small><p style="font-size:17px;">${p.text}</p></div>`;
-            });
+        function toggleLoginModal() {
+            const modal = document.getElementById('login-modal');
+            modal.classList.toggle('hidden');
+            document.getElementById('login-error').classList.add('hidden');
         }
-    });
-</script>
+
+        async function handleLogin() {
+            if (!auth) {
+                alert("!!請先在代碼中填寫 Firebase Config!! (API Key 等資訊)");
+                return;
+            }
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const errorLabel = document.getElementById('login-error');
+            const submitBtn = document.getElementById('login-submit');
+
+            if (!email || !password) {
+                errorLabel.innerText = "請填寫完整資訊";
+                errorLabel.classList.remove('hidden');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "正在取得權限...";
+            errorLabel.classList.add('hidden');
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+                toggleLoginModal();
+            } catch (error) {
+                errorLabel.innerText = "驗證碼無效或權限不足";
+                errorLabel.classList.remove('hidden');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "認證並繞過";
+            }
+        }
+
+        function handleLogout() {
+            if (auth) {
+                auth.signOut().then(() => location.reload());
+            }
+        }
+    </script>
 </body>
 </html>
