@@ -43,14 +43,16 @@
         <p class="text-[10px] text-gray-300 font-mono absolute bottom-10 tracking-widest uppercase">Security Layer v4.0.12</p>
     </div>
 
-    <!-- 2. 攔截主畫面 -->
+    <!-- 2. 攔截主畫面 (發生錯誤) -->
     <div id="block-screen" class="hidden max-w-md w-full bg-white shadow-2xl rounded-2xl p-8 border border-gray-100 text-center fade-in">
         <div class="flex justify-center mb-8">
-            <div class="bg-red-50 p-5 rounded-full ring-8 ring-red-50/50">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            <!-- 改回原始紅色盾牌禁止圖標 -->
+            <div class="bg-red-50 p-6 rounded-full">
+                <svg width="60" height="60" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 4L6 12V22C6 33.0457 14.0589 42.1072 24 44C33.9411 42.1072 42 33.0457 42 22V12L24 4Z" fill="#FEE2E2" stroke="#EF4444" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M17 24H31" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="24" cy="24" r="10" stroke="#EF4444" stroke-width="2"/>
+                    <line x1="18" y1="30" x2="30" y2="18" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
                 </svg>
             </div>
         </div>
@@ -60,22 +62,20 @@
 
         <div class="space-y-6 text-left">
             <p class="text-lg text-gray-600 font-medium text-center leading-relaxed">
-                **很抱歉，因無法驗證您不是機器人，您的請求已被攔截。**
+                很抱歉，因無法驗證您不是機器人，您的請求已被攔截。
             </p>
             
-            <div class="bg-gray-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-                <p class="text-xs text-gray-500 font-mono leading-loose">
-                    [系統報告]<br>
-                    狀態碼: 403 Forbidden<br>
-                    原因: 非人類行為檢測異常 (Bot_Detection_v4)<br>
-                    **您的 IP 地址已記錄在案。**
+            <div class="bg-gray-50 border-l-4 border-red-500 p-4 rounded-r-lg font-mono">
+                <p class="text-xs text-gray-500 italic">
+                    錯誤代碼: ERROR_CODE_BOT_DETECTION_403<br>
+                    您的 IP 地址已記錄在案。
                 </p>
             </div>
 
             <div class="text-center mt-8">
                 <p class="text-xs text-gray-400 mb-2 font-semibold uppercase tracking-widest">申訴與支援</p>
-                <a href="mailto:hehans1108perdonal@proton.me" class="text-blue-500 hover:text-blue-700 font-mono text-sm underline decoration-2 underline-offset-4">
-                    hehans1108perdonal@proton.me
+                <a href="mailto:hehans1108personal@proton.me" class="text-blue-500 hover:text-blue-700 font-mono text-sm underline decoration-2 underline-offset-4">
+                    hehans1108personal@proton.me
                 </a>
             </div>
         </div>
@@ -87,15 +87,25 @@
         </div>
     </div>
 
-    <!-- 3. 管理後台 -->
+    <!-- 3. 歡迎光臨首頁 -->
     <div id="admin-screen" class="hidden max-w-4xl w-full bg-white shadow-xl rounded-2xl p-12 border border-gray-100 fade-in">
         <div class="flex items-center justify-between mb-8 border-b pb-4">
             <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white font-bold">A</div>
-                <h2 class="text-2xl font-bold text-gray-800">管理後台</h2>
+                <!-- 根據截圖改回藍色齒輪/太陽圖標 -->
+                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L14.4 5.6L18.4 4.8L17.6 8.8L21.2 11.2L17.6 13.6L18.4 17.6L14.4 16.8L12 20.4L9.6 16.8L5.6 17.6L6.4 13.6L2.8 11.2L6.4 8.8L5.6 4.8L9.6 5.6L12 2Z" fill="white"/>
+                        <circle cx="12" cy="11.2" r="3" fill="white" fill-opacity="0.3"/>
+                    </svg>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">歡迎光臨</h2>
             </div>
-            <button onclick="handleLogout()" class="bg-red-50 text-red-500 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-100 transition-colors">登出系統</button>
+            <div class="flex items-center space-x-4">
+                <span class="text-xs text-gray-400 font-medium italic">歡迎光臨：金鑰訪客</span>
+                <button onclick="handleLogout()" class="bg-red-50 text-red-500 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-100 transition-colors">登出系統</button>
+            </div>
         </div>
+        
         <div class="flex flex-col items-center justify-center py-24 border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/50">
             <div class="bg-white p-6 rounded-full shadow-sm mb-6">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,6 +115,11 @@
             <p class="text-gray-400 font-medium text-lg italic">**暫無貼文**</p>
             <p class="text-gray-300 text-sm mt-2">目前沒有任何內容需要處理</p>
         </div>
+        
+        <div class="mt-8 text-center border-t border-gray-50 pt-6">
+            <p class="text-[10px] text-gray-300 uppercase tracking-widest mb-1">Administrator Support</p>
+            <a href="mailto:hehans1108personal@proton.me" class="text-xs text-gray-400 hover:text-blue-500 transition-colors font-mono">hehans1108personal@proton.me</a>
+        </div>
     </div>
 
     <!-- 4. 登入視窗 -->
@@ -112,18 +127,18 @@
         <div class="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl">
             <div class="text-center mb-6">
                 <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-xl mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L14.4 5.6L18.4 4.8L17.6 8.8L21.2 11.2L17.6 13.6L18.4 17.6L14.4 16.8L12 20.4L9.6 16.8L5.6 17.6L6.4 13.6L2.8 11.2L6.4 8.8L5.6 4.8L9.6 5.6L12 2Z" fill="currentColor"/>
+                    </svg>
                 </div>
                 <h3 class="text-xl font-bold text-gray-800 tracking-tight">管理員認證</h3>
                 
-                <!-- 切換標籤 -->
                 <div class="flex justify-center mt-4 border-b border-gray-100">
                     <button id="tab-key" onclick="switchTab('key')" class="px-4 py-2 text-xs font-bold uppercase tracking-wider tab-active">密鑰登入</button>
                     <button id="tab-account" onclick="switchTab('account')" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">帳號登入</button>
                 </div>
             </div>
 
-            <!-- 密鑰登入表單 -->
             <form id="form-key" onsubmit="event.preventDefault(); handleKeyLogin();" class="space-y-4">
                 <div class="space-y-1">
                     <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Admin Access Key</label>
@@ -134,19 +149,8 @@
                 </button>
             </form>
 
-            <!-- 帳號登入表單 (留著不搞，但可切換) -->
-            <form id="form-account" onsubmit="event.preventDefault(); handleAccountLogin();" class="space-y-4 hidden">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Account / Email</label>
-                    <input type="text" id="email" placeholder="帳號或電子郵件" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                </div>
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Security Password</label>
-                    <input type="password" id="password" placeholder="密碼" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all">
-                </div>
-                <button type="submit" class="w-full bg-gray-400 text-white py-3.5 rounded-2xl font-bold cursor-not-allowed mt-2" disabled>
-                    此功能暫不開放
-                </button>
+            <form id="form-account" onsubmit="event.preventDefault();" class="space-y-4 hidden text-center">
+                <p class="py-8 text-gray-300 text-sm italic font-medium">Firebase 功能開發中...</p>
             </form>
 
             <button type="button" onclick="toggleLoginModal()" class="w-full text-gray-400 text-xs py-2 mt-4 hover:text-gray-600 transition-colors">返回攔截頁面</button>
@@ -154,8 +158,12 @@
         </div>
     </div>
 
+    <footer class="fixed bottom-4 text-center w-full pointer-events-none">
+        <p class="text-[9px] text-gray-300 font-mono tracking-tighter opacity-50">Authorized Personnel Only - Contact: hehans1108personal@proton.me</p>
+    </footer>
+
     <script>
-        const MASTER_KEY = "111111"; // 指定密鑰
+        const MASTER_KEY = "111111"; 
 
         window.onload = function() {
             setTimeout(() => {
@@ -211,7 +219,6 @@
             }
         }
 
-        // 密鑰登入處理
         function handleKeyLogin() {
             const keyInput = document.getElementById('access-key').value;
             const errorLabel = document.getElementById('login-error');
