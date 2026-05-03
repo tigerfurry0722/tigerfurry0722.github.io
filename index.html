@@ -3,240 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>403 Forbidden - 系統安全檢查</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <title>⚡️ 雷霆購物網 | THUNDER SHOP</title>
     <style>
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        :root {
+            --thunder-blue: #00d4ff;
+            --thunder-gold: #ffcc00;
+            --danger-red: #ff4444;
+            --dark-bg: #0d0d0d;
         }
-        .spinner {
-            animation: spin 1s linear infinite;
+        body { background: var(--dark-bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        
+        /* 頂部導航 */
+        nav { background: rgba(0,0,0,0.8); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--thunder-blue); sticky: top; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--thunder-blue); text-shadow: 0 0 10px var(--thunder-blue); }
+        
+        /* 商品牆 */
+        .container { padding: 20px 5%; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        
+        /* 雷霆卡片設計 */
+        .item-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 15px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .item-card:hover { transform: translateY(-5px); border-color: var(--thunder-blue); box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+        
+        .badge-platinum { background: var(--thunder-gold); color: black; font-size: 0.7rem; padding: 2px 8px; border-radius: 5px; font-weight: bold; }
+        
+        .price { font-size: 1.2rem; color: var(--thunder-blue); margin: 10px 0; }
+        .btn-group { display: flex; flex-direction: column; gap: 8px; }
+        
+        button { 
+            padding: 10px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s;
         }
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .tab-active {
-            border-bottom: 2px solid #2563eb;
-            color: #2563eb;
-        }
+        .btn-buy { background: var(--thunder-blue); color: black; }
+        .btn-free { background: none; border: 1px solid var(--thunder-blue); color: var(--thunder-blue); }
+        .btn-dispute { background: none; color: var(--danger-red); font-size: 0.8rem; text-decoration: underline; }
+
+        /* 登入彈窗 */
+        #auth-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 15px; width: 300px; text-align: center; border: 1px solid var(--thunder-blue); }
+        .hidden { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-50 flex flex-col items-center justify-center min-h-screen p-4 font-sans text-gray-700 relative">
+<body>
 
-    <!-- 1. 系統正在驗證您的瀏覽器 過場畫面 -->
-    <div id="loading-screen" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center space-y-4">
-        <div class="w-12 h-12 border-4 border-gray-200 border-t-blue-500 rounded-full spinner"></div>
-        <div class="text-center">
-            <h2 class="text-xl font-bold text-gray-800">系統正在驗證您的瀏覽器</h2>
-            <p class="text-gray-400 text-sm mt-2">請耐心等候一下，這可能需要幾秒鐘...</p>
-        </div>
-        <p class="text-[10px] text-gray-300 font-mono absolute bottom-10 tracking-widest uppercase">Security Layer v4.0.12</p>
+<nav>
+    <div class="logo">⚡️ THUNDER SHOP</div>
+    <div id="user-info">
+        <span id="display-balance">餘額: 加載中...</span>
+        <button onclick="logout()" style="background:none; color:white; margin-left:10px;">登出</button>
     </div>
+</nav>
 
-    <!-- 2. 攔截主畫面 (發生錯誤) -->
-    <div id="block-screen" class="hidden max-w-md w-full bg-white shadow-2xl rounded-2xl p-8 border border-gray-100 text-center fade-in">
-        <div class="flex justify-center mb-8">
-            <!-- 改回原始紅色盾牌禁止圖標 -->
-            <div class="bg-red-50 p-6 rounded-full">
-                <svg width="60" height="60" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M24 4L6 12V22C6 33.0457 14.0589 42.1072 24 44C33.9411 42.1072 42 33.0457 42 22V12L24 4Z" fill="#FEE2E2" stroke="#EF4444" stroke-width="2" stroke-linejoin="round"/>
-                    <path d="M17 24H31" stroke="#EF4444" stroke-width="3" stroke-linecap="round"/>
-                    <circle cx="24" cy="24" r="10" stroke="#EF4444" stroke-width="2"/>
-                    <line x1="18" y1="30" x2="30" y2="18" stroke="#EF4444" stroke-width="2" stroke-linecap="round"/>
-                </svg>
-            </div>
-        </div>
+<!-- 登入模組 -->
+<div id="auth-modal" class="hidden">
+    <div class="modal-content">
+        <h2 style="color:var(--thunder-blue)">雷霆驗證</h2>
+        <input type="email" id="email" placeholder="電子郵件" style="width:90%; padding:10px; margin:10px 0;">
+        <input type="password" id="password" placeholder="密碼" style="width:90%; padding:10px; margin:10px 0;">
+        <button class="btn-buy" id="loginBtn" style="width:100%">登入</button>
+        <button class="btn-free" id="regBtn" style="width:100%; margin-top:10px;">註冊</button>
+    </div>
+</div>
 
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">發生錯誤</h1>
-        <div class="h-1.5 w-16 bg-red-500 mx-auto rounded-full mb-8"></div>
+<!-- 商品展示區 -->
+<div class="container" id="product-list">
+    <!-- 商品會由 JS 動態產生 -->
+</div>
 
-        <div class="space-y-6 text-left">
-            <p class="text-lg text-gray-600 font-medium text-center leading-relaxed">
-                很抱歉，因無法驗證您不是機器人，您的請求已被攔截。
-            </p>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyB0RkWH-59lgYef2un0HZlh6Qztb0ARwPQ",
+        authDomain: "blog-f2a36.firebaseapp.com",
+        projectId: "blog-f2a36",
+        storageBucket: "blog-f2a36.firebasestorage.app",
+        messagingSenderId: "857809971573",
+        appId: "1:857809971573:web:2f56c89ecbe2c8dbdccb3c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // 監控登入狀態
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            document.getElementById('auth-modal').classList.add('hidden');
+            loadUserData(user);
+            loadProducts();
+        } else {
+            document.getElementById('auth-modal').classList.remove('hidden');
+        }
+    });
+
+    // 載入用戶數據（餘額與檢查封號）
+    async function loadUserData(user) {
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+            const data = snap.data();
+            if (data.status === "banned") {
+                alert("!!帳號已被雷霆擊毀!!");
+                signOut(auth);
+                return;
+            }
+            document.getElementById('display-balance').innerText = `餘額: ${data.balance || 0} RMB`;
+        }
+    }
+
+    // 載入所有店鋪商品
+    async function loadProducts() {
+        const listDiv = document.getElementById('product-list');
+        listDiv.innerHTML = "⚡️ 雷霆掃描中...";
+        
+        const querySnapshot = await getDocs(collection(db, "products"));
+        listDiv.innerHTML = "";
+        
+        querySnapshot.forEach((docSnap) => {
+            const p = docSnap.data();
+            const id = docSnap.id;
             
-            <div class="bg-gray-50 border-l-4 border-red-500 p-4 rounded-r-lg font-mono">
-                <p class="text-xs text-gray-500 italic">
-                    錯誤代碼: ERROR_CODE_BOT_DETECTION_403<br>
-                    您的 IP 地址已記錄在案。
-                </p>
-            </div>
-
-            <div class="text-center mt-8">
-                <p class="text-xs text-gray-400 mb-2 font-semibold uppercase tracking-widest">申訴與支援</p>
-                <a href="mailto:hehans1108personal@proton.me" class="text-blue-500 hover:text-blue-700 font-mono text-sm underline decoration-2 underline-offset-4">
-                    hehans1108personal@proton.me
-                </a>
-            </div>
-        </div>
-
-        <div class="mt-10 pt-6 border-t border-gray-100">
-            <button onclick="toggleLoginModal()" class="text-[10px] text-gray-300 hover:text-blue-400 transition-all uppercase tracking-widest px-4 py-2 hover:bg-gray-50 rounded-lg">
-                使用支援郵件提供的帳號密碼或密鑰來繞過驗證
-            </button>
-        </div>
-    </div>
-
-    <!-- 3. 歡迎光臨首頁 -->
-    <div id="admin-screen" class="hidden max-w-4xl w-full bg-white shadow-xl rounded-2xl p-12 border border-gray-100 fade-in">
-        <div class="flex items-center justify-between mb-8 border-b pb-4">
-            <div class="flex items-center space-x-3">
-                <!-- 根據截圖改回藍色齒輪/太陽圖標 -->
-                <div class="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L14.4 5.6L18.4 4.8L17.6 8.8L21.2 11.2L17.6 13.6L18.4 17.6L14.4 16.8L12 20.4L9.6 16.8L5.6 17.6L6.4 13.6L2.8 11.2L6.4 8.8L5.6 4.8L9.6 5.6L12 2Z" fill="white"/>
-                        <circle cx="12" cy="11.2" r="3" fill="white" fill-opacity="0.3"/>
-                    </svg>
+            // 建立卡片
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between">
+                    <span class="badge-platinum">★ 白金之星級</span>
+                    <small style="color:#666">商家: ${p.shopName}</small>
                 </div>
-                <h2 class="text-2xl font-bold text-gray-800">歡迎光臨</h2>
-            </div>
-            <div class="flex items-center space-x-4">
-                <span class="text-xs text-gray-400 font-medium italic">歡迎光臨：金鑰訪客</span>
-                <button onclick="handleLogout()" class="bg-red-50 text-red-500 px-4 py-1.5 rounded-full text-xs font-bold hover:bg-red-100 transition-colors">登出系統</button>
-            </div>
-        </div>
-        
-        <div class="flex flex-col items-center justify-center py-24 border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/50">
-            <div class="bg-white p-6 rounded-full shadow-sm mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-            </div>
-            <p class="text-gray-400 font-medium text-lg italic">**暫無貼文**</p>
-            <p class="text-gray-300 text-sm mt-2">目前沒有任何內容需要處理</p>
-        </div>
-        
-        <div class="mt-8 text-center border-t border-gray-50 pt-6">
-            <p class="text-[10px] text-gray-300 uppercase tracking-widest mb-1">Administrator Support</p>
-            <a href="mailto:hehans1108personal@proton.me" class="text-xs text-gray-400 hover:text-blue-500 transition-colors font-mono">hehans1108personal@proton.me</a>
-        </div>
-    </div>
-
-    <!-- 4. 登入視窗 -->
-    <div id="login-modal" class="hidden fixed inset-0 login-modal bg-black/60 flex items-center justify-center p-4 z-[110]">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-8 shadow-2xl">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-50 text-blue-600 rounded-xl mb-3">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 2L14.4 5.6L18.4 4.8L17.6 8.8L21.2 11.2L17.6 13.6L18.4 17.6L14.4 16.8L12 20.4L9.6 16.8L5.6 17.6L6.4 13.6L2.8 11.2L6.4 8.8L5.6 4.8L9.6 5.6L12 2Z" fill="currentColor"/>
-                    </svg>
+                <h3>${p.name}</h3>
+                <p style="font-size:0.8rem; color:#ccc">${p.desc}</p>
+                <div class="price">¥ ${p.price}</div>
+                <div class="btn-group">
+                    <button class="btn-buy" onclick="handleBuy('${id}', ${p.price}, '${p.shopId}')">⚡️ 餘額支付</button>
+                    <button class="btn-free" onclick="handleRequest('${id}', '${p.shopId}', 'shop')">向商家求免單</button>
+                    <button class="btn-free" style="border-color:gold; color:gold;" onclick="handleRequest('${id}', 'admin', 'platform')">向雷霆求免單</button>
+                    <button class="btn-dispute" onclick="handleComplaint('${id}')">凍結並投訴此訂單</button>
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 tracking-tight">管理員認證</h3>
-                
-                <div class="flex justify-center mt-4 border-b border-gray-100">
-                    <button id="tab-key" onclick="switchTab('key')" class="px-4 py-2 text-xs font-bold uppercase tracking-wider tab-active">密鑰登入</button>
-                    <button id="tab-account" onclick="switchTab('account')" class="px-4 py-2 text-xs font-bold uppercase tracking-wider text-gray-400">帳號登入</button>
-                </div>
-            </div>
+            `;
+            listDiv.appendChild(card);
+        });
+    }
 
-            <form id="form-key" onsubmit="event.preventDefault(); handleKeyLogin();" class="space-y-4">
-                <div class="space-y-1">
-                    <label class="text-[10px] font-bold text-gray-400 uppercase ml-1">Admin Access Key</label>
-                    <input type="password" id="access-key" placeholder="輸入 6 位數認證密鑰" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-center tracking-[1em]">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3.5 rounded-2xl font-bold hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all active:scale-95 mt-2">
-                    立即驗證
-                </button>
-            </form>
+    // 全局掛載函數供按鈕使用
+    window.handleBuy = async (pid, price, shopId) => {
+        // 這裡會加入「拉黑檢查」與「扣款」
+        alert("正在請求雷霆支付系統...");
+    };
 
-            <form id="form-account" onsubmit="event.preventDefault();" class="space-y-4 hidden text-center">
-                <p class="py-8 text-gray-300 text-sm italic font-medium">Firebase 功能開發中...</p>
-            </form>
+    window.logout = () => signOut(auth);
 
-            <button type="button" onclick="toggleLoginModal()" class="w-full text-gray-400 text-xs py-2 mt-4 hover:text-gray-600 transition-colors">返回攔截頁面</button>
-            <p id="login-error" class="text-red-500 text-xs mt-4 text-center hidden font-medium px-4 py-2 bg-red-50 rounded-lg italic"></p>
-        </div>
-    </div>
-
-    <footer class="fixed bottom-4 text-center w-full pointer-events-none">
-        <p class="text-[9px] text-gray-300 font-mono tracking-tighter opacity-50">Authorized Personnel Only - Contact: hehans1108personal@proton.me</p>
-    </footer>
-
-    <script>
-        const MASTER_KEY = "111111"; 
-
-        window.onload = function() {
-            setTimeout(() => {
-                const loadingScreen = document.getElementById('loading-screen');
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                    updateUI();
-                }, 500);
-            }, 3000);
-        };
-
-        function updateUI() {
-            const blockScreen = document.getElementById('block-screen');
-            const adminScreen = document.getElementById('admin-screen');
-            const isBypassed = sessionStorage.getItem('admin_bypass') === 'true';
-
-            if (isBypassed) {
-                blockScreen.style.display = 'none';
-                adminScreen.classList.remove('hidden');
-            } else {
-                blockScreen.style.display = 'block';
-                adminScreen.classList.add('hidden');
-            }
-        }
-
-        function toggleLoginModal() {
-            const modal = document.getElementById('login-modal');
-            modal.classList.toggle('hidden');
-            document.getElementById('login-error').classList.add('hidden');
-        }
-
-        function switchTab(type) {
-            const tabKey = document.getElementById('tab-key');
-            const tabAccount = document.getElementById('tab-account');
-            const formKey = document.getElementById('form-key');
-            const formAccount = document.getElementById('form-account');
-
-            if (type === 'key') {
-                tabKey.classList.add('tab-active');
-                tabKey.classList.remove('text-gray-400');
-                tabAccount.classList.remove('tab-active');
-                tabAccount.classList.add('text-gray-400');
-                formKey.classList.remove('hidden');
-                formAccount.classList.add('hidden');
-            } else {
-                tabAccount.classList.add('tab-active');
-                tabAccount.classList.remove('text-gray-400');
-                tabKey.classList.remove('tab-active');
-                tabKey.classList.add('text-gray-400');
-                formAccount.classList.remove('hidden');
-                formKey.classList.add('hidden');
-            }
-        }
-
-        function handleKeyLogin() {
-            const keyInput = document.getElementById('access-key').value;
-            const errorLabel = document.getElementById('login-error');
-
-            if (keyInput === MASTER_KEY) {
-                sessionStorage.setItem('admin_bypass', 'true');
-                updateUI();
-                toggleLoginModal();
-            } else {
-                errorLabel.innerText = "!!密鑰認證失敗：無效的通行密鑰!!";
-                errorLabel.classList.remove('hidden');
-            }
-        }
-
-        function handleLogout() {
-            sessionStorage.removeItem('admin_bypass');
-            location.reload();
-        }
-    </script>
+    // 註冊與登入邏輯（簡略版）
+    document.getElementById('loginBtn').onclick = () => {
+        const e = document.getElementById('email').value;
+        const p = document.getElementById('password').value;
+        signInWithEmailAndPassword(auth, e, p).catch(err => alert("身分驗證失敗"));
+    };
+</script>
 </body>
 </html>
